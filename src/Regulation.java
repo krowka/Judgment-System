@@ -8,8 +8,8 @@ public class Regulation {
     public Regulation(String journalTitle, Long journalNo, Long journalYear, Long journalEntry, String text){
         this.journalTitle = journalTitle;
         this.journalNo = journalNo;
-        this.journalYear = journalYear;
-        this.journalEntry = journalEntry;
+        this.journalYear = journalYear; // klucz
+        this.journalEntry = journalEntry; //klucz
         this.text = text;
     }
 

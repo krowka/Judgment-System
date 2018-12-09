@@ -29,13 +29,14 @@ public class Parser {
 
     private Judgment toJudgment(JSONObject jsonObject){
         Long id = (Long) jsonObject.get("id");
-        String courtType = (String) jsonObject.get("courtType");
-        List<String> caseNumberList = toCaseNumberList((JSONArray) jsonObject.get("courtCases"));
+        CourtType courtType = CourtType.valueOf((String) jsonObject.get("courtType"));
+        String caseNumber = (String) ((JSONObject) ((JSONArray) jsonObject.get("courtCases")).get(0)).get("caseNumber");
+        //List<String> caseNumberList = toCaseNumberList((JSONArray) jsonObject.get("courtCases"));
         List<Judge> judgeList = toJudgeList((JSONArray) jsonObject.get("judges"));
         String textContent = (String) jsonObject.get("textContent");
         List<Regulation> referencedRegulationList = toReferencedRegulationsList((JSONArray) jsonObject.get("referencedRegulations"));
         String judgmentDate = (String) jsonObject.get("judgmentDate");
-        return new Judgment(id, courtType, caseNumberList, judgeList, textContent, referencedRegulationList,judgmentDate);
+        return new Judgment(id, courtType, caseNumber, judgeList, textContent, referencedRegulationList,judgmentDate);
     }
 
     private List<String> toCaseNumberList(JSONArray courtCases){
@@ -51,7 +52,8 @@ public class Parser {
         List<Judge> judgeList = new ArrayList<>();
         for (Object judge : judges) {
             String judgeName = (String) ((JSONObject) judge).get("name");
-            judgeList.add(new Judge(judgeName));
+            List<SpecialRoles> sr = toSpecialRoles((JSONArray) ((JSONObject) judge).get("specialRoles"));
+            judgeList.add(new Judge(judgeName, sr));
         }
         return judgeList;
     }
@@ -69,5 +71,14 @@ public class Parser {
             referencedRegulationsList.add(regulation);
         }
         return referencedRegulationsList;
+    }
+
+    private List<SpecialRoles> toSpecialRoles(JSONArray jsonArraySpecialRoles){
+        List<SpecialRoles> specialRoles = new ArrayList<>();
+        for (int i = 0; i < jsonArraySpecialRoles.size(); i ++){
+            SpecialRoles role = SpecialRoles.valueOf((String) jsonArraySpecialRoles.get(i));
+            specialRoles.add(role);
+        }
+        return specialRoles;
     }
 }
