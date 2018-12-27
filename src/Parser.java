@@ -5,16 +5,24 @@ import org.json.simple.parser.ParseException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Parser {
     private FileReader file;
     private JSONParser parser;
+    private List<Judge> judges;
+    private List<Regulation> regulations;
+    private List<Year> years;
+    private List<CourtType> courtTypes;
 
-    public Parser (String source) throws FileNotFoundException {
+    public Parser(String source, List<Judge> judges, List<Regulation> regulations, List<Year> years,
+                  List<CourtType> courtTypes) throws FileNotFoundException {
         this.file = new FileReader(source);
         this.parser = new JSONParser();
+        this.judges = judges;
+        this.regulations = regulations;
+        this.years = years;
+        this.courtTypes = courtTypes;
     }
 
     public List<Judgment> parse() throws ParseException, IOException {
@@ -27,58 +35,92 @@ public class Parser {
         return judgmentList;
     }
 
-    private Judgment toJudgment(JSONObject jsonObject){
-        Long id = (Long) jsonObject.get("id");
-        CourtType courtType = CourtType.valueOf((String) jsonObject.get("courtType"));
+    private Judgment toJudgment(JSONObject jsonObject) {
+        CourtType courtType = toCourtType(jsonObject);
         String caseNumber = (String) ((JSONObject) ((JSONArray) jsonObject.get("courtCases")).get(0)).get("caseNumber");
-        //List<String> caseNumberList = toCaseNumberList((JSONArray) jsonObject.get("courtCases"));
-        List<Judge> judgeList = toJudgeList((JSONArray) jsonObject.get("judges"));
+        Map<Judge, List<SpecialRoles>> judgesMap = toJudgeMap((JSONArray) jsonObject.get("judges"));
         String textContent = (String) jsonObject.get("textContent");
         List<Regulation> referencedRegulationList = toReferencedRegulationsList((JSONArray) jsonObject.get("referencedRegulations"));
-        String judgmentDate = (String) jsonObject.get("judgmentDate");
-        return new Judgment(id, courtType, caseNumber, judgeList, textContent, referencedRegulationList,judgmentDate);
+        String judgmentDate = toJudgmentDate(jsonObject);
+        Judgment judgment = new Judgment(courtType, caseNumber, judgesMap, textContent, referencedRegulationList, judgmentDate);
+        List<Judge> judgeList = new ArrayList<>(judgesMap.keySet());
+        addJudgmentToJudges(judgeList, judgment);
+        return judgment;
     }
 
-    private List<String> toCaseNumberList(JSONArray courtCases){
-        List<String> caseNumberList = new ArrayList<>();
-        for (Object courtCase : courtCases) {
-            String caseNumber = (String) ((JSONObject) courtCase).get("caseNumber");
-            caseNumberList.add(caseNumber);
+    private CourtType toCourtType(JSONObject jsonObject){
+        CourtType courtType = CourtType.valueOf((String) jsonObject.get("courtType"));
+        if(courtTypes.contains(courtType)){
+            courtTypes.get(courtTypes.indexOf(courtType)).increment();
+        } else{
+            courtTypes.add(courtType);
         }
-        return  caseNumberList;
+        return courtType;
     }
 
-    private List<Judge> toJudgeList(JSONArray judges){
-        List<Judge> judgeList = new ArrayList<>();
-        for (Object judge : judges) {
+    private String toJudgmentDate(JSONObject jsonObject){
+        String judgmentDate = (String) jsonObject.get("judgmentDate");
+        String[] date = judgmentDate.split("-");
+        int m = Integer.parseInt(date[1]);
+        int y = Integer.parseInt(date[0]);
+        years.get(0).addJudgment(m);
+        if(years.contains(new Year(y)))
+            years.get(years.indexOf(new Year(y))).addJudgment(m);
+        else {
+            Year newYear = new Year(y);
+            newYear.addJudgment(m);
+            years.add(newYear);
+        }
+        return judgmentDate;
+    }
+
+    private Map<Judge, List<SpecialRoles>> toJudgeMap(JSONArray JSONJudges) {
+        Map<Judge, List<SpecialRoles>> judgesMap = new HashMap<>();
+        for (Object judge : JSONJudges) {
             String judgeName = (String) ((JSONObject) judge).get("name");
             List<SpecialRoles> sr = toSpecialRoles((JSONArray) ((JSONObject) judge).get("specialRoles"));
-            judgeList.add(new Judge(judgeName, sr));
+            Judge j = new Judge(judgeName);
+            judgesMap.put(j, sr);
         }
-        return judgeList;
+        return judgesMap;
     }
 
-    private List<Regulation> toReferencedRegulationsList(JSONArray referencedRegulations){
+    private List<Regulation> toReferencedRegulationsList(JSONArray referencedRegulations) {
         List<Regulation> referencedRegulationsList = new ArrayList<>();
-        for(Object referencedRegulation : referencedRegulations){
+        for (Object referencedRegulation : referencedRegulations) {
             JSONObject refReg = (JSONObject) referencedRegulation;
-            String journalTitle = (String) refReg.get("journalTitle");
             Long journalNo = (Long) refReg.get("journalNo");
             Long journalYear = (Long) refReg.get("journalYear");
             Long journalEntry = (Long) refReg.get("journalEntry");
-            String text = (String) refReg.get("text");
-            Regulation regulation = new Regulation(journalTitle, journalNo, journalYear, journalEntry, text);
+            Regulation regulation = new Regulation(journalNo, journalYear, journalEntry);
+            if(!regulations.contains(regulation))
+                regulations.add(regulation);
+            else{
+                regulations.get(regulations.indexOf(regulation)).increment();
+            }
             referencedRegulationsList.add(regulation);
         }
         return referencedRegulationsList;
     }
 
-    private List<SpecialRoles> toSpecialRoles(JSONArray jsonArraySpecialRoles){
+    private List<SpecialRoles> toSpecialRoles(JSONArray jsonArraySpecialRoles) {
         List<SpecialRoles> specialRoles = new ArrayList<>();
-        for (int i = 0; i < jsonArraySpecialRoles.size(); i ++){
+        for (int i = 0; i < jsonArraySpecialRoles.size(); i++) {
             SpecialRoles role = SpecialRoles.valueOf((String) jsonArraySpecialRoles.get(i));
             specialRoles.add(role);
         }
         return specialRoles;
+    }
+
+    private void addJudgmentToJudges(List<Judge> judgesList, Judgment judgment) {
+        for (Judge judge : judgesList) {
+            if (judges.contains(judge)) {
+                judges.get(judges.indexOf(judge)).increment();
+                judges.get(judges.indexOf(judge)).addJudgment(judgment);
+            } else{
+                judge.addJudgment(judgment);
+                judges.add(judge);
+            }
+        }
     }
 }

@@ -1,25 +1,45 @@
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Judge {
+public class Judge implements Comparable<Judge>{
     private String name;
-    private List<SpecialRoles> specialRoles;
+    private List<Judgment> judgments;
+    private int number;
 
-    public Judge(String name, List<SpecialRoles> specialRoles){
+    public Judge(String name) {
         this.name = name;
-        this.specialRoles = specialRoles;
-        //this.role = role;
+        this.number = 1;
+        judgments = new ArrayList<>();
     }
 
-    /*public boolean equals(Judge judge){
-        return this.name == judge.name;
-    }*/
-
-    public String toString(){
-        return this.name + " " + this.specialRolesToString();
+    public void addJudgment(Judgment judgment){
+        this.judgments.add(judgment);
+        //this.number++;
     }
 
-    @Override
+    public String getName() {
+        return this.name;
+    }
+
+    public String toString() {
+        return this.name;
+    }
+
+    public StringBuilder casesToString(){
+        StringBuilder  sb = new StringBuilder("Całkowita liczba orzeczeń: " + this.judgments.size() + "\n");
+        for(Judgment judgment : this.judgments){
+            sb.append("- " + judgment.getCaseNumber() + "\n");
+        }
+        return sb;
+    }
+
+    public void increment(){ this.number = this.number+1;}
+
+    public int getJudgments(){
+        return this.judgments.size();
+    }
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -27,23 +47,28 @@ public class Judge {
         return this.name.equals(judge.name);
     }
 
+    public int getNumber(){
+        return this.number;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(name);
     }
 
-    private String specialRolesToString(){
-        if(this.specialRoles.size() == 0)
-            return "";
-        StringBuilder result = new StringBuilder(" (");
-        int i = 0;
-        for(SpecialRoles role : specialRoles){
-            if(i++ == 0)
-                result.append(role.toString());
-            else
-                result.append(", " + role.toString());
+    @Override
+    public int compareTo(Judge o) {
+        //int comparision = (this.number < o.number) ? -1 : (this.number > o.number) ? +1 : 0;
+        //int comparision = this.number - o.number;
+        int comparision = Integer.compare(this.number, o.getNumber());
+        if(comparision == 0){
+            return this.name.compareTo(o.getName());
         }
-        result.append(")");
-        return  result.toString();
+        else return comparision;
+
+        //if(this.number == o.number)
+            //return this.name.compareTo(o.name);
+        //else
+            //return this.number - o.number;
     }
 }
