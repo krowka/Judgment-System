@@ -1,12 +1,15 @@
-import java.util.*;
+import java.io.Console;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Podaj sciężkę do folderu z plikami: ");
-        String path = scanner.next();
+        Console console = System.console();
         try {
-            JudgmentSystem judgmentSystem = new JudgmentSystem(path);
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Podaj scieżkę folderu z plikami: ");
+            //JudgmentSystem judgmentSystem = new JudgmentSystem(scanner.next());
+            //JudgmentSystem judgmentSystem = new JudgmentSystem(console.readLine());
+            JudgmentSystem judgmentSystem = new JudgmentSystem(scanner.nextLine());
             judgmentSystem.execute();
         } catch (Exception ex) {
             System.out.println(ex);
