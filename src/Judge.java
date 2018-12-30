@@ -2,7 +2,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Judge implements Comparable<Judge>{
+public class Judge implements Comparable<Judge> {
     private String name;
     private List<Judgment> judgments;
     private int number;
@@ -13,9 +13,8 @@ public class Judge implements Comparable<Judge>{
         judgments = new ArrayList<>();
     }
 
-    public void addJudgment(Judgment judgment){
+    public void addJudgment(Judgment judgment) {
         this.judgments.add(judgment);
-        //this.number++;
     }
 
     public String getName() {
@@ -26,17 +25,19 @@ public class Judge implements Comparable<Judge>{
         return this.name;
     }
 
-    public StringBuilder casesToString(){
-        StringBuilder  sb = new StringBuilder("Całkowita liczba orzeczeń: " + this.judgments.size() + "\n");
-        for(Judgment judgment : this.judgments){
+    public StringBuilder casesToString() {
+        StringBuilder sb = new StringBuilder("Całkowita liczba orzeczeń: " + this.judgments.size() + "\n");
+        for (Judgment judgment : this.judgments) {
             sb.append("- " + judgment.getCaseNumber() + "\n");
         }
         return sb;
     }
 
-    public void increment(){ this.number = this.number+1;}
+    public void increment() {
+        this.number = this.number + 1;
+    }
 
-    public int getJudgments(){
+    public int getJudgments() {
         return this.judgments.size();
     }
 
@@ -47,7 +48,7 @@ public class Judge implements Comparable<Judge>{
         return this.name.equals(judge.name);
     }
 
-    public int getNumber(){
+    public int getNumber() {
         return this.number;
     }
 
@@ -61,14 +62,13 @@ public class Judge implements Comparable<Judge>{
         //int comparision = (this.number < o.number) ? -1 : (this.number > o.number) ? +1 : 0;
         //int comparision = this.number - o.number;
         int comparision = Integer.compare(this.number, o.getNumber());
-        if(comparision == 0){
+        if (comparision == 0) {
             return this.name.compareTo(o.getName());
-        }
-        else return comparision;
+        } else return comparision;
 
         //if(this.number == o.number)
-            //return this.name.compareTo(o.name);
+        //return this.name.compareTo(o.name);
         //else
-            //return this.number - o.number;
+        //return this.number - o.number;
     }
 }

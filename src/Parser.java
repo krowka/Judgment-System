@@ -2,6 +2,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -48,23 +49,23 @@ public class Parser {
         return judgment;
     }
 
-    private CourtType toCourtType(JSONObject jsonObject){
+    private CourtType toCourtType(JSONObject jsonObject) {
         CourtType courtType = CourtType.valueOf((String) jsonObject.get("courtType"));
-        if(courtTypes.contains(courtType)){
+        if (courtTypes.contains(courtType)) {
             courtTypes.get(courtTypes.indexOf(courtType)).increment();
-        } else{
+        } else {
             courtTypes.add(courtType);
         }
         return courtType;
     }
 
-    private String toJudgmentDate(JSONObject jsonObject){
+    private String toJudgmentDate(JSONObject jsonObject) {
         String judgmentDate = (String) jsonObject.get("judgmentDate");
         String[] date = judgmentDate.split("-");
         int m = Integer.parseInt(date[1]);
         int y = Integer.parseInt(date[0]);
         years.get(0).addJudgment(m);
-        if(years.contains(new Year(y)))
+        if (years.contains(new Year(y)))
             years.get(years.indexOf(new Year(y))).addJudgment(m);
         else {
             Year newYear = new Year(y);
@@ -93,9 +94,9 @@ public class Parser {
             Long journalYear = (Long) refReg.get("journalYear");
             Long journalEntry = (Long) refReg.get("journalEntry");
             Regulation regulation = new Regulation(journalNo, journalYear, journalEntry);
-            if(!regulations.contains(regulation))
+            if (!regulations.contains(regulation))
                 regulations.add(regulation);
-            else{
+            else {
                 regulations.get(regulations.indexOf(regulation)).increment();
             }
             referencedRegulationsList.add(regulation);
@@ -117,7 +118,7 @@ public class Parser {
             if (judges.contains(judge)) {
                 judges.get(judges.indexOf(judge)).increment();
                 judges.get(judges.indexOf(judge)).addJudgment(judgment);
-            } else{
+            } else {
                 judge.addJudgment(judgment);
                 judges.add(judge);
             }

@@ -2,6 +2,7 @@ import org.jsoup.*;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
@@ -31,7 +32,7 @@ public class HTMLParser {
         String judgmentDate;
         String[] tmp = document.getElementsByClass("war_header").text().split("-");
         sygnature = tmp[0];
-        sygnature = sygnature.substring(0, sygnature.length()-1);
+        sygnature = sygnature.substring(0, sygnature.length() - 1);
         Elements table = document.getElementsByClass("info-list pb-none");
         Elements rows = document.getElementsByClass("niezaznaczona");
         Elements cells = table.select("td");
@@ -91,12 +92,12 @@ public class HTMLParser {
     }
 
 
-    private void addToMap(String string, Map<Judge, List<SpecialRoles>> judgesMap){
-        String judge =  string.replaceAll("<.*?> ", "");
-        judge =  judge.replaceAll(" <.*?>", "");
+    private void addToMap(String string, Map<Judge, List<SpecialRoles>> judgesMap) {
+        String judge = string.replaceAll("<.*?> ", "");
+        judge = judge.replaceAll(" <.*?>", "");
         List<SpecialRoles> sr = new ArrayList<>();
         Judge j;
-        if(judge.contains("/")) {
+        if (judge.contains("/")) {
             String[] tmp = judge.split("/");
             tmp[0] = tmp[0].substring(0, tmp[0].length() - 1); // removing space at the last character
             if (tmp[1].contains("przewodniczący"))
@@ -104,37 +105,35 @@ public class HTMLParser {
             if (tmp[1].contains("sprawozdawca"))
                 sr.add(SpecialRoles.REPORTING_JUDGE);
             j = new Judge(tmp[0]);
-        }
-        else
+        } else
             j = new Judge(judge);
 
         judgesMap.put(j, sr);
     }
 
-    private Map<Judge, List<SpecialRoles>> createJudgeMap(String stringJudges){
+    private Map<Judge, List<SpecialRoles>> createJudgeMap(String stringJudges) {
         Map<Judge, List<SpecialRoles>> judgesMap = new HashMap<>();
-        if(stringJudges.contains("<br>")){
+        if (stringJudges.contains("<br>")) {
             String[] judges = stringJudges.split("<br>"); // spliting into array of judges and their special roles
-            for(String judge : judges)
+            for (String judge : judges)
                 addToMap(judge, judgesMap);
-        }
-        else{
-            addToMap(stringJudges,judgesMap);
+        } else {
+            addToMap(stringJudges, judgesMap);
         }
         return judgesMap;
     }
 
-    private List<Regulation> addRegulations(String regulationsString){
+    private List<Regulation> addRegulations(String regulationsString) {
         List<Regulation> regulationList = new ArrayList<>();
         String[] regs = regulationsString.split("Dz.U.");
         regs = Arrays.copyOfRange(regs, 1, regs.length);
-        for(String s : regs){
+        for (String s : regs) {
             s = s.replaceAll("[^0-9]+", " ");
             String[] tmp = s.split(" ");
             Regulation r = new Regulation(Long.parseLong(tmp[2]), Long.parseLong(tmp[1]), Long.parseLong(tmp[3]));
-            if(!this.regulations.contains(r))
+            if (!this.regulations.contains(r))
                 this.regulations.add(r);
-            else{
+            else {
                 this.regulations.get(this.regulations.indexOf(r)).increment();
             }
             regulationList.add(r);
@@ -147,7 +146,7 @@ public class HTMLParser {
             if (judges.contains(j)) {
                 judges.get(judges.indexOf(j)).increment();
                 judges.get(judges.indexOf(j)).addJudgment(judgment);
-            } else{
+            } else {
                 j.addJudgment(judgment);
                 judges.add(j);
             }

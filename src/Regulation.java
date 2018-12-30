@@ -6,20 +6,22 @@ public class Regulation {
     private Long journalEntry;
     private int number;
 
-    public Regulation(Long journalNo, Long journalYear, Long journalEntry){
+    public Regulation(Long journalNo, Long journalYear, Long journalEntry) {
         this.journalNo = journalNo;
         this.journalYear = journalYear; // klucz
         this.journalEntry = journalEntry; //klucz
         this.number = 1;
     }
 
-    public void increment(){
+    public void increment() {
         this.number++;
     }
 
-    public int getNumber(){ return this.number; }
+    public int getNumber() {
+        return this.number;
+    }
 
-    public String getID(){
+    public String getID() {
         return journalYear + "/" + journalEntry + "/" + journalNo;
     }
 

@@ -6,18 +6,18 @@ public enum CourtType {
     CONSTITUTIONAL_TRIBUNAL,// Trybunał Konstytucyjny
     NATIONAL_APPEAL_CHAMBER; // Krajowa Izba Odwoławcza
 
-    private int number = 1;
+    private int number = 1; // number of cases in specific court type
 
-    public void increment(){
+    public void increment() {
         this.number++;
     }
 
-    public int getNumber(){
+    public int getNumber() {
         return this.number;
     }
 
-    public String toString(){
-        switch(this){
+    public String toString() {
+        switch (this) {
             case COMMON:
                 return "Sąd powszechny";
             case SUPREME:
